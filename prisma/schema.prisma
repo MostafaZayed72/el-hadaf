@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Stock {
+  id        Int      @id @default(autoincrement())
+  name      String
+  symbol    String   @unique
+  logoUrl   String?
+  analyses  Analysis[]
+}
+
+model Analysis {
+  id          Int      @id @default(autoincrement())
+  stockId     Int
+  stock       Stock    @relation(fields: [stockId], references: [id])
+  
+  currentPrice Float?
+  target       Float?
+  stopLoss     Float?
+  
+  // Text content
+  technical   String? // التحليل الفني
+  financial   String? // التحليل المالي
+  behavioral  String? // التحليل السلوكي
+  
+  // Data points (stored as JSON string for simplicity)
+  support     String? // JSON array of numbers
+  resistance  String? // JSON array of numbers
+  
+  patterns    String? // Text description of patterns
+  
+  // Chart data
+  chartImageUrl String? // Path to uploaded chart image
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
