@@ -1,20 +1,27 @@
-
 <template>
   <div class="layout-wrapper">
     <nav class="main-nav">
       <div class="container nav-content">
-        <NuxtLink to="/" class="brand">قناة الهدف</NuxtLink>
+        <NuxtLink to="/" class="brand">
+          <img src="/public/logo.png" alt="قناة الهدف" class="brand-logo rounded-xl" />
+        </NuxtLink>
         <div class="nav-links">
           <NuxtLink to="/" class="nav-link">الرئيسية</NuxtLink>
-          <NuxtLink to="/analysis" class="nav-link">التحليل</NuxtLink>
-          <NuxtLink to="/admin" class="nav-link">تحليل الأسهم</NuxtLink>
-          <NuxtLink to="/admin/stocks" class="nav-link">إدارة الأسهم</NuxtLink>
+          <NuxtLink to="/analysis" class="nav-link">تحليل الأسهم</NuxtLink>
+          
+          <template v-if="isAdmin">
+             <button @click="logout" class="nav-link bg-transparent border-0 cursor-pointer">تسجيل الخروج</button>
+          </template>
         </div>
       </div>
     </nav>
     <slot />
   </div>
 </template>
+
+<script setup lang="ts">
+const { isAdmin, logout } = useAuth()
+</script>
 
 <style scoped>
 .main-nav {
@@ -29,16 +36,16 @@
   align-items: center;
 }
 
-.brand {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--primary);
-  text-decoration: none;
+.brand-logo {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
 }
 
 .nav-links {
   display: flex;
   gap: 2rem;
+  align-items: center;
 }
 
 .nav-link {
@@ -48,7 +55,11 @@
   transition: color 0.3s;
 }
 
-.nav-link:hover, .nav-link.router-link-active {
+.nav-link:hover {
+  opacity: 0.8;
+}
+
+.nav-link.router-link-active {
   color: var(--primary);
 }
 
