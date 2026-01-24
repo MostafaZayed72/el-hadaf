@@ -1,24 +1,33 @@
-
 export const useAuth = () => {
-    const isAdmin = useCookie<boolean>('is_admin')
-    const router = useRouter()
+    const user = useState('user', () => null)
 
-    const login = (u: string, p: string) => {
-        if (u === 'mostafa' && p === 'mostafa') {
-            isAdmin.value = true
+    const login = (username, password) => {
+        // Mock Login
+        if (username && password) {
+            user.value = {
+                username: username,
+                name: 'Mostafa',
+                role: username === 'admin' ? 'ADMIN' : 'USER',
+                isPremium: true
+            }
             return true
         }
         return false
     }
 
     const logout = () => {
-        isAdmin.value = false
-        router.push('/')
+        user.value = null
+        return navigateTo('/login')
     }
 
+    const isAdmin = computed(() => user.value?.role === 'ADMIN')
+    const isAuthenticated = computed(() => !!user.value)
+
     return {
-        isAdmin,
+        user,
         login,
-        logout
+        logout,
+        isAdmin,
+        isAuthenticated
     }
 }

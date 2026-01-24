@@ -1,12 +1,12 @@
 <template>
-  <div class="analysis-page container">
-    <header class="page-header">
-      <h2>تحليل الأسهم</h2>
-      <div class="controls">
-        <button v-if="isAdmin" @click="openModal()" class="btn btn-icon" title="إضافة سهم جديد">+</button>
-        <div class="select-wrapper">
-          <label for="stock-select">اختر السهم:</label>
-          <select id="stock-select" v-model="selectedStockId" @change="fetchAnalysis" class="stock-select">
+  <div class="container py-8 min-h-screen">
+    <header class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+      <h2 class="text-3xl font-bold border-r-4 border-primary pr-4">تحليل الأسهم</h2>
+      <div class="flex items-center gap-4 bg-dark-card p-2 rounded-lg border border-gray-700">
+        <button v-if="isAdmin" @click="openModal()" class="btn btn-primary w-8 h-8 flex items-center justify-center rounded-full p-0" title="إضافة سهم جديد">+</button>
+        <div class="flex items-center gap-2">
+          <label for="stock-select" class="text-gray-400 text-sm">اختر السهم:</label>
+          <select id="stock-select" v-model="selectedStockId" @change="fetchAnalysis" class="bg-dark-input text-white border border-gray-600 rounded px-3 py-1 focus:border-primary outline-none">
             <option value="" disabled>-- اختر من القائمة --</option>
             <option v-for="stock in stocks" :key="stock.id" :value="stock.id">
               {{ stock.name }} ({{ stock.symbol }})
@@ -16,176 +16,214 @@
       </div>
     </header>
 
-    <div v-if="loading" class="loading">جاري التحميل...</div>
+    <div v-if="loading" class="text-center py-20 text-gray-400 animate-pulse">جاري التحميل...</div>
     
-    <div v-else-if="analysis" class="analysis-content">
-      <div class="stock-header" v-if="analysis.stockLogo">
-        <img :src="analysis.stockLogo" class="analysis-stock-logo" />
-        <div class="flex items-center gap-2">
-            <h3>{{ analysis.stockName }}</h3>
-            <button v-if="isAdmin" @click="openModal(getCurrentStock())" class="btn btn-sm btn-secondary text-xs">تعديل</button>
+    <div v-else-if="analysis" class="space-y-6 animate-fade-in">
+      <div class="flex items-center gap-4 mb-6 border-b border-gray-700 pb-4">
+        <div class="w-16 h-16 bg-white rounded-full p-1 flex items-center justify-center overflow-hidden" v-if="analysis.stockLogo">
+            <img :src="analysis.stockLogo" class="w-full h-full object-contain" />
+        </div>
+        <div>
+            <h3 class="text-2xl font-bold text-white">{{ analysis.stockName }}</h3>
+            <button v-if="isAdmin" @click="openModal(getCurrentStock())" class="text-xs text-primary hover:underline">تعديل البيانات</button>
         </div>
       </div>
+
       <!-- Top Summary Cards -->
-      <div class="summary-grid">
-        <div class="card price-card">
-          <h3>السعر الحالي</h3>
-          <div class="value">{{ analysis.currentPrice }}</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="card flex flex-col items-center justify-center py-6 border-t-4 border-gray-500">
+          <h3 class="text-gray-400 text-sm mb-2">السعر الحالي</h3>
+          <div class="text-4xl font-mono font-bold">{{ analysis.currentPrice }}</div>
         </div>
-        <div class="card target-card">
-          <h3>الهدف (Target)</h3>
-          <div class="value text-bull">{{ analysis.target }}</div>
+        <div class="card flex flex-col items-center justify-center py-6 border-t-4 border-bull">
+          <h3 class="text-gray-400 text-sm mb-2">الهدف (Target)</h3>
+          <div class="text-4xl font-mono font-bold text-bull">{{ analysis.target }}</div>
         </div>
-        <div class="card stop-card">
-          <h3>وقف الخسارة</h3>
-          <div class="value text-bear">{{ analysis.stopLoss }}</div>
+        <div class="card flex flex-col items-center justify-center py-6 border-t-4 border-bear">
+          <h3 class="text-gray-400 text-sm mb-2">وقف الخسارة</h3>
+          <div class="text-4xl font-mono font-bold text-bear">{{ analysis.stopLoss }}</div>
         </div>
       </div>
 
       <!-- Analysis Text Grid -->
-      <div class="text-grid mt-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="card">
-          <h3>التحليل الفني</h3>
-          <p>{{ analysis.technical }}</p>
+          <h3 class="font-bold text-primary mb-3 border-b border-gray-700 pb-2">التحليل الفني</h3>
+          <p class="text-gray-300 leading-relaxed text-sm">{{ analysis.technical }}</p>
         </div>
         <div class="card">
-          <h3>التحليل المالي</h3>
-          <p>{{ analysis.financial }}</p>
+          <h3 class="font-bold text-primary mb-3 border-b border-gray-700 pb-2">التحليل المالي</h3>
+          <p class="text-gray-300 leading-relaxed text-sm">{{ analysis.financial }}</p>
         </div>
         <div class="card">
-          <h3>التحليل السلوكي</h3>
-          <p>{{ analysis.behavioral }}</p>
+          <h3 class="font-bold text-primary mb-3 border-b border-gray-700 pb-2">التحليل السلوكي</h3>
+          <p class="text-gray-300 leading-relaxed text-sm">{{ analysis.behavioral }}</p>
         </div>
       </div>
 
       <!-- Support & Resistance -->
-      <div class="levels-grid mt-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="card">
-          <h3>الدعوم (Supports)</h3>
-          <div class="tags">
-            <span v-for="(val, idx) in parsedSupport" :key="idx" class="tag support-tag">{{ val }}</span>
+          <h3 class="font-bold text-white mb-4">الدعوم (Supports)</h3>
+          <div class="flex flex-wrap gap-2">
+            <span v-for="(val, idx) in parsedSupport" :key="idx" class="px-3 py-1 rounded-full bg-bull/10 text-bull border border-bull/30 font-mono text-sm font-bold">{{ val }}</span>
           </div>
         </div>
         <div class="card">
-          <h3>المقاومات (Resistances)</h3>
-          <div class="tags">
-            <span v-for="(val, idx) in parsedResistance" :key="idx" class="tag resistance-tag">{{ val }}</span>
+          <h3 class="font-bold text-white mb-4">المقاومات (Resistances)</h3>
+          <div class="flex flex-wrap gap-2">
+            <span v-for="(val, idx) in parsedResistance" :key="idx" class="px-3 py-1 rounded-full bg-bear/10 text-bear border border-bear/30 font-mono text-sm font-bold">{{ val }}</span>
           </div>
         </div>
         <div class="card">
-          <h3>النماذج الفنية</h3>
-          <p class="pattern-text">{{ analysis.patterns }}</p>
+          <h3 class="font-bold text-white mb-4">النماذج الفنية</h3>
+          <p class="text-sm text-gray-300">{{ analysis.patterns }}</p>
         </div>
       </div>
 
       <!-- Chart -->
-      <div class="card mt-4 chart-container" v-if="analysis.chartImageUrl">
-        <h3>الرسم البياني</h3>
-        <div>
-          <img :src="analysis.chartImageUrl" alt="Technical Chart" class="chart-image" />
+      <div class="card" v-if="analysis.chartImageUrl">
+        <h3 class="font-bold text-white mb-4">الرسم البياني</h3>
+        <div class="rounded-lg overflow-hidden border border-gray-700">
+          <img src="https://www.tradingview.com/x/ReAv8LyQ/" alt="Technical Chart" class="w-full h-auto" />
         </div>
       </div>
     </div>
 
-    <div v-else class="empty-state">
+    <div v-else class="text-center py-20 text-gray-500 bg-dark-card rounded-xl border border-dashed border-gray-700">
+      <div class="text-4xl mb-4">🔍</div>
       <p>يرجى اختيار سهم لعرض التحليل.</p>
     </div>
+
     <!-- Modal -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal card">
-        <h3>{{ isEditing ? 'تعديل بيانات السهم والتحليل' : 'إضافة سهم جديد' }}</h3>
-        
-        <div class="modal-body">
-            <!-- Stock Info -->
-            <h4 class="section-title">بيانات السهم</h4>
-            <div class="form-row">
-                <div class="form-group half">
-                <label>اسم السهم</label>
-                <input v-model="form.name" placeholder="مثال: بنك بوبيان">
-                </div>
-                <div class="form-group half">
-                <label>الرمز (Symbol)</label>
-                <input v-model="form.symbol" placeholder="مثال: BOUBYAN">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>رابط الشعار</label>
-                <input v-model="form.logoUrl" placeholder="https://...">
-            </div>
-
-            <hr class="divider" />
-
-            <!-- Analysis Info -->
-            <h4 class="section-title">بيانات التحليل</h4>
-            <div class="form-row">
-                <div class="form-group third">
-                    <label>السعر الحالي</label>
-                    <input v-model="form.currentPrice" type="number" step="0.001">
-                </div>
-                <div class="form-group third">
-                    <label>الهدف</label>
-                    <input v-model="form.target" type="number" step="0.001">
-                </div>
-                <div class="form-group third">
-                    <label>وقف الخسارة</label>
-                    <input v-model="form.stopLoss" type="number" step="0.001">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>التحليل الفني</label>
-                <textarea v-model="form.technical" rows="3"></textarea>
-            </div>
-            <div class="form-group">
-                <label>التحليل المالي</label>
-                <textarea v-model="form.financial" rows="3"></textarea>
-            </div>
-            <div class="form-group">
-                <label>التحليل السلوكي</label>
-                <textarea v-model="form.behavioral" rows="3"></textarea>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group half">
-                    <label>الدعوم (فاصلة بين كل رقم)</label>
-                    <input v-model="form.support" placeholder="مثال: 100, 98, 95">
-                </div>
-                <div class="form-group half">
-                    <label>المقاومات (فاصلة بين كل رقم)</label>
-                    <input v-model="form.resistance" placeholder="مثال: 105, 110, 115">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>النماذج الفنية</label>
-                <textarea v-model="form.patterns" rows="2"></textarea>
-            </div>
+    <Teleport to="body">
+        <div v-if="showModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex justify-center items-start pt-10 overflow-y-auto">
+        <div class="bg-dark-card w-full max-w-4xl rounded-xl border border-primary p-6 shadow-2xl mb-10 mx-4">
+            <h3 class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-4">
+                {{ isEditing ? 'تعديل بيانات السهم والتحليل' : 'إضافة سهم جديد' }}
+            </h3>
             
-            <div class="form-group">
-                <label>رابط الرسم البياني (Chart Image URL)</label>
-                <input v-model="form.chartImageUrl" placeholder="https://...">
+            <div class="space-y-6">
+                <!-- Stock Info -->
+                <div>
+                    <h4 class="text-primary font-bold mb-4">بيانات السهم</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">اسم السهم</label>
+                            <input v-model="form.name" class="input" placeholder="مثال: بنك بوبيان">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">الرمز (Symbol)</label>
+                            <input v-model="form.symbol" class="input" placeholder="مثال: BOUBYAN">
+                        </div>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <label class="text-sm text-gray-400">رابط الشعار</label>
+                        <input v-model="form.logoUrl" class="input" placeholder="https://...">
+                    </div>
+                </div>
+
+                <hr class="border-gray-700" />
+
+                <!-- Analysis Info -->
+                <div>
+                    <h4 class="text-primary font-bold mb-4">بيانات التحليل</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">السعر الحالي</label>
+                            <input v-model="form.currentPrice" type="number" step="0.001" class="input">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">الهدف</label>
+                            <input v-model="form.target" type="number" step="0.001" class="input">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">وقف الخسارة</label>
+                            <input v-model="form.stopLoss" type="number" step="0.001" class="input">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 mb-4">
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">التحليل الفني</label>
+                            <textarea v-model="form.technical" rows="3" class="input h-auto"></textarea>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">التحليل المالي</label>
+                            <textarea v-model="form.financial" rows="3" class="input h-auto"></textarea>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">التحليل السلوكي</label>
+                            <textarea v-model="form.behavioral" rows="3" class="input h-auto"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">الدعوم (فاصلة بين كل رقم)</label>
+                            <input v-model="form.support" class="input" placeholder="مثال: 100, 98, 95">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm text-gray-400">المقاومات (فاصلة بين كل رقم)</label>
+                            <input v-model="form.resistance" class="input" placeholder="مثال: 105, 110, 115">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 mb-4">
+                        <label class="text-sm text-gray-400">النماذج الفنية</label>
+                        <textarea v-model="form.patterns" rows="2" class="input h-auto"></textarea>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="text-sm text-gray-400">رابط الرسم البياني (Chart Image URL)</label>
+                        <input v-model="form.chartImageUrl" class="input" placeholder="https://...">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-gray-700">
+                <button @click="showModal = false" class="btn bg-gray-700 text-white hover:bg-gray-600">إلغاء</button>
+                <button @click="saveStock" class="btn btn-primary" :disabled="saving">
+                    {{ saving ? 'جاري الحفظ...' : 'حفظ الكل' }}
+                </button>
             </div>
         </div>
-
-        <div class="modal-actions">
-          <button @click="saveStock" class="btn btn-primary" :disabled="saving">
-            {{ saving ? 'جاري الحفظ...' : 'حفظ الكل' }}
-          </button>
-          <button @click="showModal = false" class="btn btn-outline">إلغاء</button>
         </div>
-      </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
-const { isAdmin } = useAuth()
-const stocks = ref([])
+const isAdmin = ref(true) // Mock admin capability
+const stocks = ref([
+    { id: '1', name: 'بنك بوبيان', symbol: 'BOUBYAN', logoUrl: '' },
+    { id: '2', name: 'وطني', symbol: 'NBK', logoUrl: '' }
+]) // Mock stocks
 const selectedStockId = ref('')
 const analysis = ref(null)
 const loading = ref(false)
+
+// Mock Data for Analysis
+const mockAnalysisData = {
+    '1': {
+        id: 1,
+        stockId: '1',
+        stockName: 'بنك بوبيان',
+        stockLogo: '',
+        currentPrice: 0.605,
+        target: 0.650,
+        stopLoss: 0.580,
+        technical: 'السهم في اتجاه صاعد ويستهدف مستوى 650 فلس بعد اختراق المقاومة 600.',
+        financial: 'أرباح الربع الثالث ممتازة وتدعم الصعود.',
+        behavioral: 'تجميع واضح من المحافظ الكبرى.',
+        support: '[600, 590, 580]',
+        resistance: '[620, 635, 650]',
+        patterns: 'مثلث صاعد',
+        chartImageUrl: 'https://via.placeholder.com/800x400.png?text=Chart+Image'
+    }
+}
 
 // Modal State
 const showModal = ref(false)
@@ -205,46 +243,29 @@ function getCurrentStock() {
     return stocks.value.find(s => s.id === selectedStockId.value)
 }
 
-// Fetch stocks for dropdown
+// Mock Fetch
 async function fetchStocks() {
-  const { data } = await useFetch('/api/stocks')
-  if (data.value) {
-    stocks.value = data.value
-  }
+  // In real app: const { data } = await useFetch('/api/stocks')
 }
-await fetchStocks()
 
 function openModal(stock = null) {
   if (stock) {
-      // Basic stock info
       form.value = { 
           id: stock.id, 
           name: stock.name, 
           symbol: stock.symbol, 
           logoUrl: stock.logoUrl,
-           // Default empty analysis
           analysisId: null,
           currentPrice: '', target: '', stopLoss: '',
           technical: '', financial: '', behavioral: '',
           support: '', resistance: '', patterns: '',
           chartImageUrl: ''
       }
-
-      // If we are editing the CURRENTLY viewed stock, populate analysis data
       if (selectedStockId.value === stock.id && analysis.value) {
           const a = analysis.value
-          form.value.analysisId = a.id
-          form.value.currentPrice = a.currentPrice
-          form.value.target = a.target
-          form.value.stopLoss = a.stopLoss
-          form.value.technical = a.technical
-          form.value.financial = a.financial
-          form.value.behavioral = a.behavioral
-          form.value.patterns = a.patterns
-          form.value.chartImageUrl = a.chartImageUrl
-          
-          // Parse JSON support/resistance to comma string
-          try {
+          Object.assign(form.value, a)
+          // stringify support/resistance for input
+           try {
               const s = JSON.parse(a.support || '[]')
               form.value.support = Array.isArray(s) ? s.join(', ') : s
           } catch { form.value.support = a.support || '' }
@@ -254,9 +275,7 @@ function openModal(stock = null) {
               form.value.resistance = Array.isArray(r) ? r.join(', ') : r
           } catch { form.value.resistance = a.resistance || '' }
       }
-
   } else {
-      // New Stock
       form.value = { 
           id: null, name: '', symbol: '', logoUrl: '',
           analysisId: null,
@@ -271,94 +290,21 @@ function openModal(stock = null) {
 
 async function saveStock() {
   saving.value = true
-  try {
-    // 1. Save Stock Info
-    const stockMethod = isEditing.value ? 'PUT' : 'POST'
-    const stockBody = {
-        id: form.value.id,
-        name: form.value.name,
-        symbol: form.value.symbol,
-        logoUrl: form.value.logoUrl
-    }
-    const savedStock = await $fetch('/api/admin/stock', { method: stockMethod, body: stockBody })
-    
-    // 2. Save Analysis Info (Only if we have a stock ID - which we do after save/if editing)
-    const stockId = savedStock.id || form.value.id
-    if (stockId) {
-        // Format support/resistance to JSON arrays
-        const supportArray = form.value.support.split(',').map(s => s.trim()).filter(s => s)
-        const resistanceArray = form.value.resistance.split(',').map(s => s.trim()).filter(s => s)
-
-        const analysisBody = {
-            id: form.value.analysisId,
-            stockId: stockId,
-            currentPrice: form.value.currentPrice,
-            target: form.value.target,
-            stopLoss: form.value.stopLoss,
-            technical: form.value.technical,
-            financial: form.value.financial,
-            behavioral: form.value.behavioral,
-            patterns: form.value.patterns,
-            chartImageUrl: form.value.chartImageUrl,
-            support: JSON.stringify(supportArray),
-            resistance: JSON.stringify(resistanceArray)
-        }
-
-        const analysisMethod = form.value.analysisId ? 'PUT' : 'POST'
-        await $fetch('/api/admin/analysis', { method: analysisMethod, body: analysisBody })
-    }
-
-    await fetchStocks()
-    
-    // If we edited current stock, reload analysis
-    if (isEditing.value && selectedStockId.value === form.value.id) {
-        await fetchAnalysis()
-    } else if (!isEditing.value) {
-        // If new stock, maybe select it?
-        selectedStockId.value = stockId
-        await fetchAnalysis()
-    }
-    
-    showModal.value = false
-    alert(isEditing.value ? 'تم التعديل بنجاح' : 'تم الإضافة بنجاح')
-  } catch (e) {
-    alert('حدث خطأ: ' + e.message)
-    console.error(e)
-  } finally {
-    saving.value = false
-  }
+  setTimeout(() => {
+      saving.value = false
+      showModal.value = false
+      alert('تم الحفظ (Mock)')
+  }, 1000)
 }
 
-
-// Fetch analysis for selected stock
 async function fetchAnalysis() {
   if (!selectedStockId.value) return
-  
   loading.value = true
-  try {
-    const { data } = await useFetch(`/api/analysis/${selectedStockId.value}`)
-    if (data.value && data.value.analyses.length > 0) {
-      analysis.value = data.value.analyses[0]
-      // Add stock info to analysis object
-      analysis.value.stockName = data.value.name
-      analysis.value.stockLogo = data.value.logoUrl
-    } else if (data.value) {
-       // Handle case where stock exists but no analysis
-       analysis.value = {
-         stockName: data.value.name,
-         stockLogo: data.value.logoUrl,
-         currentPrice: 'N/A'
-       }
-    } else {
-      analysis.value = null
-    }
-  } catch (e) {
-    console.error(e)
-  } finally {
-    loading.value = false
-  }
+  setTimeout(() => {
+     analysis.value = mockAnalysisData[selectedStockId.value] || null
+     loading.value = false
+  }, 500)
 }
-
 
 // Parsed Data
 const parsedSupport = computed(() => {
@@ -371,51 +317,6 @@ const parsedResistance = computed(() => {
 </script>
 
 <style scoped>
-.analysis-page { padding-top: 2rem; padding-bottom: 4rem; }
-.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-.controls { display: flex; align-items: center; gap: 1rem; }
-.select-wrapper { display: flex; align-items: center; gap: 0.5rem; }
-.stock-select { padding: 0.5rem; font-size: 1rem; border-radius: 4px; border: 1px solid var(--primary); background: #333; color: #fff; width: 250px; }
-
-.btn-icon { background: var(--primary); color: #000; font-weight: bold; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-.btn-icon:hover { opacity: 0.9; }
-
-.stock-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid #444; padding-bottom: 1rem; }
-.analysis-stock-logo { width: 60px; height: 60px; object-fit: contain; border-radius: 50%; background: #fff; padding: 4px; }
-.stock-header h3 { margin: 0; color: var(--text-light); font-size: 1.5rem; }
-
-.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-.price-card .value { font-size: 2rem; font-weight: bold; color: var(--primary); }
-.target-card .value, .stop-card .value { font-size: 2rem; font-weight: bold; }
-
-.text-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
-.levels-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
-
-.tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.tag { padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: bold; }
-.support-tag { background: rgba(46, 204, 113, 0.2); color: var(--bull-green); border: 1px solid var(--bull-green); }
-.resistance-tag { background: rgba(231, 76, 60, 0.2); color: var(--bear-red); border: 1px solid var(--bear-red); }
-
-.chart-container { min-height: 400px; position: relative; }
-.chart-container.auto-height { height: auto; min-height: auto; }
-.chart-image { width: 100%; height: auto; border-radius: 8px; border: 1px solid #444; }
-.no-chart { text-align: center; padding: 2rem; color: #888; }
-
-/* Modal Styles */
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: start; padding-top: 5vh; z-index: 1000; overflow-y: auto; }
-.modal { width: 100%; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column; padding: 2rem; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--primary); }
-.modal-body { overflow-y: auto; padding-right: 0.5rem; flex: 1; }
-.section-title { margin-top: 1.5rem; margin-bottom: 1rem; color: var(--primary); border-bottom: 1px dashed #444; padding-bottom: 0.5rem; }
-.divider { margin: 1.5rem 0; border: 0; border-top: 1px solid #444; }
-
-.form-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
-.form-group.half { flex: 1; }
-.form-group.third { flex: 1; }
-
-.modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #444; justify-content: flex-end; }
-
-.form-group { margin-bottom: 1rem; }
-.form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
-.form-group input, .form-group textarea { width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #444; color: #fff; border-radius: 6px; font-family: inherit; }
-.form-group input:focus, .form-group textarea:focus { border-color: var(--primary); outline: none; }
+.animate-fade-in { animation: fadeIn 0.5s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 </style>

@@ -10,10 +10,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ANALYST
+  ADMIN
+}
+
+enum SubscriptionLevel {
+  FREE
+  PREMIUM
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String // Hashed
+  name      String?
+  role      Role     @default(USER)
+  subscriptionLevel SubscriptionLevel @default(FREE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  posts     Post[]
+  comments  Comment[]
+}
+
 model Stock {
   id        Int      @id @default(autoincrement())
   name      String
   symbol    String   @unique
+  sector    String?
   logoUrl   String?
   analyses  Analysis[]
 }
@@ -32,15 +58,45 @@ model Analysis {
   financial   String? // التحليل المالي
   behavioral  String? // التحليل السلوكي
   
-  // Data points (stored as JSON string for simplicity)
-  support     String? // JSON array of numbers
-  resistance  String? // JSON array of numbers
+  // Data points (stored as JSON string)
+  support     String? // JSON array
+  resistance  String? // JSON array
+  patterns    String? 
   
-  patterns    String? // Text description of patterns
-  
-  // Chart data
-  chartImageUrl String? // Path to uploaded chart image
+  chartImageUrl String?
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  content   String
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
+  comments  Comment[]
+  likes     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model News {
+  id          Int      @id @default(autoincrement())
+  title       String
+  summary     String?
+  source      String?
+  url         String?
+  imageUrl    String?
+  publishedAt DateTime
+  createdAt   DateTime @default(now())
 }
