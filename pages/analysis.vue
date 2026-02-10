@@ -48,7 +48,10 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div v-if="analysis.technical" class="card">
             <h3 class="font-bold text-primary mb-3 border-b border-border-color pb-2">التحليل الفني</h3>
-            <p class="text-text-secondary leading-relaxed text-sm">{{ analysis.technical }}</p>
+            <p class="text-text-secondary leading-relaxed text-sm mb-4">{{ analysis.technical }}</p>
+            <p class="text-xs text-orange-500 font-bold bg-orange-500/10 p-2 rounded border border-orange-500/20">
+              ⚠️ هذا التحليل رؤية فنية وليس توصية بيع أو شراء .
+            </p>
           </div>
           <div v-if="analysis.financial" class="card">
             <h3 class="font-bold text-primary mb-3 border-b border-border-color pb-2">التحليل المالي</h3>
@@ -63,17 +66,17 @@
         <!-- Support and Resistance -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6" v-if="supportLevels.length || resistanceLevels.length">
           <div class="card" v-if="supportLevels.length">
-            <h3 class="font-bold text-bull mb-3 border-b border-border-color pb-2">مستويات الدعم</h3>
+            <h3 class="font-bold text-bear mb-3 border-b border-border-color pb-2">مستويات الدعم</h3>
             <div class="flex flex-wrap gap-2">
-              <span v-for="level in supportLevels" :key="level" class="px-3 py-1 bg-bull/20 text-bull rounded-full text-sm font-mono">
+              <span v-for="level in supportLevels" :key="level" class="px-3 py-1 bg-bear/20 text-bear rounded-full text-sm font-mono">
                 {{ level }}
               </span>
             </div>
           </div>
           <div class="card" v-if="resistanceLevels.length">
-            <h3 class="font-bold text-bear mb-3 border-b border-border-color pb-2">مستويات المقاومة</h3>
+            <h3 class="font-bold text-bull mb-3 border-b border-border-color pb-2">مستويات المقاومة</h3>
             <div class="flex flex-wrap gap-2">
-              <span v-for="level in resistanceLevels" :key="level" class="px-3 py-1 bg-bear/20 text-bear rounded-full text-sm font-mono">
+              <span v-for="level in resistanceLevels" :key="level" class="px-3 py-1 bg-bull/20 text-bull rounded-full text-sm font-mono">
                 {{ level }}
               </span>
             </div>
@@ -105,6 +108,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
+import { useStocks } from '../composables/useStocks'
 
 const route = useRoute()
 const router = useRouter()
@@ -119,6 +123,22 @@ const loading = ref(false)
 const stocksList = computed(() => stocks.value)
 const selectedStock = computed(() => {
   return stocks.value.find(s => s.id === selectedStockId.value)
+})
+
+const supportLevels = computed(() => {
+    if (!analysis.value || !analysis.value.support) return []
+    // If it's already an array, return it
+    if (Array.isArray(analysis.value.support)) return analysis.value.support
+    // If it's a string, we might need to rely on the parsing already done in fetchAnalysis,
+    // but fetchAnalysis updates analysis.value directly. Let's make sure.
+    // The fetchAnalysis parses JSON strings for us.
+    return []
+})
+
+const resistanceLevels = computed(() => {
+    if (!analysis.value || !analysis.value.resistance) return []
+    if (Array.isArray(analysis.value.resistance)) return analysis.value.resistance
+    return []
 })
 
 // Lifecycle
