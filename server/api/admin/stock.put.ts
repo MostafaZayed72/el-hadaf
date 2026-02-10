@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
         where: { id: parseInt(body.id) },
         data: {
             name: body.name,
-            symbol: body.symbol,
+            symbol: body.symbol || null,
             logoUrl: body.logoUrl
         }
     })
