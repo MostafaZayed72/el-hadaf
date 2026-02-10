@@ -1,14 +1,34 @@
-export const useAuth = () => {
-    const user = useState('user', () => null)
+interface User {
+    username: string
+    name: string
+    role: string
+}
 
-    const login = (username, password) => {
-        // Mock Login
-        if (username && password) {
+export const useAuth = () => {
+    const user = useState<User | null>('user', () => null)
+
+    // Check localStorage on initialization
+    if (process.client && !user.value) {
+        const stored = localStorage.getItem('auth_user')
+        if (stored) {
+            try {
+                user.value = JSON.parse(stored)
+            } catch (e) {
+                localStorage.removeItem('auth_user')
+            }
+        }
+    }
+
+    const login = (username: string, password: string) => {
+        // Check credentials: admin / admin123456
+        if (username === 'admin' && password === 'admin123456') {
             user.value = {
                 username: username,
-                name: 'Mostafa',
-                role: username === 'admin' ? 'ADMIN' : 'USER',
-                isPremium: true
+                name: 'Admin',
+                role: 'ADMIN'
+            }
+            if (process.client) {
+                localStorage.setItem('auth_user', JSON.stringify(user.value))
             }
             return true
         }
@@ -17,7 +37,10 @@ export const useAuth = () => {
 
     const logout = () => {
         user.value = null
-        return navigateTo('/login')
+        if (process.client) {
+            localStorage.removeItem('auth_user')
+        }
+        return navigateTo('/admin')
     }
 
     const isAdmin = computed(() => user.value?.role === 'ADMIN')

@@ -28,22 +28,22 @@ const posts = ref([
 </script>
 
 <template>
-  <div class="container py-8">
+  <div class="container mx-auto px-4 py-8 max-w-7xl">
       <div class="flex flex-col lg:flex-row gap-8">
           <!-- Main Feed -->
           <div class="lg:w-2/3">
               <div class="flex justify-between items-center mb-6">
-                  <h1 class="text-3xl font-bold text-white">مجتمع المتداولين </h1>
+                  <h1 class="text-3xl font-bold text-page-text">مجتمع المتداولين </h1>
                   <button class="btn btn-primary">+ موضوع جديد</button>
               </div>
 
               <!-- Create Post (Placeholder) -->
               <div class="card mb-6">
-                  <textarea class="input h-24 mb-3 resize-none" placeholder="شاركنا رأيك أو تحليلك..."></textarea>
+                  <textarea class="input h-24 mb-3 resize-none focus:bg-input bg-input/50" placeholder="شاركنا رأيك أو تحليلك..."></textarea>
                   <div class="flex justify-between items-center">
                        <div class="flex gap-2">
-                           <button class="text-gray-400 hover:text-primary pt-1">📷</button>
-                           <button class="text-gray-400 hover:text-primary pt-1">📊</button>
+                           <button class="text-text-secondary hover:text-primary pt-1">📷</button>
+                           <button class="text-text-secondary hover:text-primary pt-1">📊</button>
                        </div>
                        <button class="btn btn-primary text-sm px-6">نشر</button>
                   </div>
@@ -53,17 +53,17 @@ const posts = ref([
               <div class="space-y-6">
                   <div v-for="post in posts" :key="post.id" class="card">
                       <div class="flex items-center gap-3 mb-4">
-                          <img :src="post.avatar" alt="Avatar" class="w-10 h-10 rounded-full border border-gray-600">
+                          <img :src="post.avatar" alt="Avatar" class="w-10 h-10 rounded-full border border-border-color">
                           <div>
-                              <h3 class="font-bold text-white">{{ post.author }}</h3>
-                              <span class="text-xs text-gray-400">{{ post.time }}</span>
+                              <h3 class="font-bold text-page-text">{{ post.author }}</h3>
+                              <span class="text-xs text-text-secondary">{{ post.time }}</span>
                           </div>
                       </div>
-                      <p class="text-gray-300 mb-4 leading-relaxed">{{ post.content }}</p>
+                      <p class="text-text-secondary mb-4 leading-relaxed">{{ post.content }}</p>
                       <div class="flex flex-wrap gap-2 mb-4">
                           <span v-for="tag in post.tags" :key="tag" class="text-xs bg-primary/10 text-primary px-2 py-1 rounded">#{{ tag }}</span>
                       </div>
-                      <div class="border-t border-gray-800 pt-3 flex gap-6 text-gray-400 text-sm">
+                      <div class="border-t border-border-color pt-3 flex gap-6 text-text-secondary text-sm">
                           <button class="hover:text-primary flex items-center gap-1">👍 {{ post.likes }} إعجاب</button>
                           <button class="hover:text-primary flex items-center gap-1">💬 {{ post.comments }} تعليق</button>
                           <button class="hover:text-primary ml-auto">🔗 مشاركة</button>
@@ -75,17 +75,17 @@ const posts = ref([
           <!-- Sidebar -->
           <div class="lg:w-1/3 space-y-6">
               <div class="card">
-                  <h3 class="font-bold mb-4 text-white">الأكثر تداولاً 🔥</h3>
+                  <h3 class="font-bold mb-4 text-page-text">الأكثر تداولاً 🔥</h3>
                   <div class="flex flex-wrap gap-2">
-                       <span class="bg-dark-input px-3 py-1 rounded text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">#بيتك</span>
-                       <span class="bg-dark-input px-3 py-1 rounded text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">#أجيليتي</span>
-                       <span class="bg-dark-input px-3 py-1 rounded text-sm text-gray-300 hover:bg-gray-700 cursor-pointer">#السوق_الأول</span>
+                       <span class="bg-secondary/50 px-3 py-1 rounded text-sm text-text-secondary hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors">#بيتك</span>
+                       <span class="bg-secondary/50 px-3 py-1 rounded text-sm text-text-secondary hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors">#أجيليتي</span>
+                       <span class="bg-secondary/50 px-3 py-1 rounded text-sm text-text-secondary hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer transition-colors">#السوق_الأول</span>
                   </div>
               </div>
 
-              <div class="card bg-gradient-to-br from-primary/20 to-dark border-primary/30">
+              <div class="card bg-gradient-to-br from-primary/20 to-card border-primary/30">
                   <h3 class="font-bold mb-2 text-primary">هل تعلم؟</h3>
-                  <p class="text-sm text-gray-400">يمكنك مشاركة رسوم بيانية مباشرة من صفحة التحليل الفني في مشاركاتك!</p>
+                  <p class="text-sm text-text-secondary">يمكنك مشاركة رسوم بيانية مباشرة من صفحة التحليل الفني في مشاركاتك!</p>
               </div>
           </div>
       </div>

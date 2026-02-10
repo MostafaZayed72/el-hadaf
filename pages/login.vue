@@ -24,26 +24,29 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center relative overflow-hidden bg-dark">
+  <div class="min-h-screen flex items-center justify-center relative overflow-hidden bg-page-bg transition-colors duration-300">
      <!-- Background Effects -->
+
     <div class="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
     <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
     
-    <div class="card w-full max-w-md p-8 relative z-10 border border-gray-800 backdrop-blur-md">
+    <div class="card w-full max-w-md p-8 relative z-10 border border-border-color backdrop-blur-md transition-colors duration-300">
       <div class="text-center mb-8">
-          <span class="text-5xl mb-4 block">🎯</span>
-          <h1 class="text-3xl font-bold text-white mb-2">مرحباً بعودتك</h1>
-          <p class="text-gray-400">سجل دخولك لمتابعة آخر تحليلات السوق</p>
+          <img src="/public/logo.png" alt="قناة الهدف" class="h-24 w-24 rounded-full object-cover mx-auto mb-4 bg-white p-1 border-4 border-primary" />
+          <h1 class="text-3xl font-bold text-page-text mb-2">مرحباً بعودتك</h1>
+
+
+          <p class="text-text-secondary">سجل دخولك لمتابعة آخر تحليلات السوق</p>
       </div>
 
       <form @submit.prevent="handleLogin" class="space-y-6">
         <div class="space-y-2">
-            <label class="text-sm text-gray-300">اسم المستخدم</label>
-            <input v-model="username" type="text" class="input bg-dark-input/50 focus:bg-dark-input" placeholder="admin / user" required />
+            <label class="text-sm text-text-secondary">اسم المستخدم</label>
+            <input v-model="username" type="text" class="input focus:bg-input bg-input/50" placeholder="admin / user" required />
         </div>
         <div class="space-y-2">
-            <label class="text-sm text-gray-300">كلمة المرور</label>
-            <input v-model="password" type="password" class="input bg-dark-input/50 focus:bg-dark-input" placeholder="••••••••" required />
+            <label class="text-sm text-text-secondary">كلمة المرور</label>
+            <input v-model="password" type="password" class="input focus:bg-input bg-input/50" placeholder="••••••••" required />
         </div>
         
         <div v-if="error" class="bg-red-500/10 text-red-500 text-sm p-3 rounded text-center border border-red-500/20">
@@ -56,7 +59,7 @@ const handleLogin = async () => {
         </button>
       </form>
 
-      <div class="mt-6 text-center text-sm text-gray-400">
+      <div class="mt-6 text-center text-sm text-text-secondary">
           ليس لديك حساب؟ <NuxtLink to="/register" class="text-primary hover:underline font-bold">إنشاء حساب جديد</NuxtLink>
       </div>
     </div>

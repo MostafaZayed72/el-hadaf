@@ -10,7 +10,7 @@ const stocks = [
 </script>
 
 <template>
-  <div class="container py-8">
+  <div class="container mx-auto px-4 py-8 max-w-7xl">
     <div class="flex justify-between items-center mb-8">
         <h1 class="text-3xl font-bold border-r-4 border-primary pr-4">بيانات الأسهم</h1>
         <div class="flex gap-2">
@@ -22,24 +22,24 @@ const stocks = [
     <div class="card overflow-hidden">
         <table class="w-full text-right text-sm">
             <thead>
-                <tr class="bg-gray-800/50 text-gray-400 border-b border-gray-700">
-                    <th class="p-4">الرمز</th>
-                    <th class="p-4">اسم الشركة</th>
-                    <th class="p-4">آخر سعر</th>
-                    <th class="p-4">التغيير</th>
-                    <th class="p-4">حجم التداول</th>
-                    <th class="p-4">إجراءات</th>
+                <tr class="bg-primary/10 border-b border-border-color">
+                    <th class="p-4 text-page-text font-bold">الرمز</th>
+                    <th class="p-4 text-page-text font-bold">اسم الشركة</th>
+                    <th class="p-4 text-page-text font-bold">آخر سعر</th>
+                    <th class="p-4 text-page-text font-bold">التغيير</th>
+                    <th class="p-4 text-page-text font-bold">حجم التداول</th>
+                    <th class="p-4 text-page-text font-bold">إجراءات</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="stock in stocks" :key="stock.id" class="border-b border-gray-700/50 hover:bg-gray-700/20 transition-colors">
+                <tr v-for="stock in stocks" :key="stock.id" class="border-b border-border-color hover:bg-primary/5 transition-colors">
                     <td class="p-4 font-bold text-primary">{{ stock.symbol }}</td>
-                    <td class="p-4 font-bold text-white">{{ stock.name }}</td>
-                    <td class="p-4 font-mono">{{ stock.price.toFixed(3) }}</td>
-                    <td class="p-4 font-mono dir-ltr" :class="stock.change > 0 ? 'text-bull' : (stock.change < 0 ? 'text-bear' : 'text-gray-400')">
+                    <td class="p-4 font-bold text-page-text">{{ stock.name }}</td>
+                    <td class="p-4 font-mono text-page-text">{{ stock.price.toFixed(3) }}</td>
+                    <td class="p-4 font-mono dir-ltr" :class="stock.change > 0 ? 'text-bull' : (stock.change < 0 ? 'text-bear' : 'text-text-secondary')">
                         {{ stock.change > 0 ? '+' : '' }}{{ stock.change.toFixed(3) }}
                     </td>
-                    <td class="p-4 font-mono text-gray-400">{{ stock.vol }}</td>
+                    <td class="p-4 font-mono text-text-secondary">{{ stock.vol }}</td>
                     <td class="p-4">
                         <NuxtLink :to="`/analysis?symbol=${stock.symbol}`" class="text-primary hover:underline text-xs">تحليل</NuxtLink>
                     </td>

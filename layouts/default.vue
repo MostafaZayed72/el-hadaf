@@ -1,4 +1,8 @@
 <script setup>
+import { useTheme } from '~/composables/useTheme'
+import ScrollToTop from '~/components/ScrollToTop.vue'
+
+const { initTheme } = useTheme()
 const links = [
   { name: 'الرئيسية', path: '/' },
   { name: 'مجتمع المتداولين', path: '/community' },
@@ -9,18 +13,30 @@ const links = [
   { name: 'تعليم', path: '/education' },
   { name: 'استشارات', path: '/consulting' },
 ]
+
+onMounted(() => {
+    initTheme()
+})
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-dark text-white font-sans">
+  <div class="min-h-screen flex flex-col bg-page-bg text-page-text font-sans transition-colors duration-300 relative">
+    <ClientOnly>
+      <ThreeBackground />
+    </ClientOnly>
+    <TradingBackground />
+    
     <!-- Header -->
-    <header class="bg-dark-card/80 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
+
+    <header class="bg-card/80 backdrop-blur-md border-b border-border-color sticky top-0 z-50 transition-colors duration-300">
       <div class="container mx-auto px-4 h-20 flex items-center justify-between">
         <!-- Logo -->
-        <NuxtLink to="/" class="text-2xl font-bold text-primary flex items-center gap-2">
-          <span class="text-3xl">🎯</span>
-          <span>قناة الهدف</span>
+        <NuxtLink to="/" class="flex items-center gap-2">
+          <img src="/public/logo.png" alt="قناة الهدف" class="h-12 w-12 rounded-full object-cover bg-white p-0.5 border-2 border-primary" />
         </NuxtLink>
+
+
+
 
         <!-- Desktop Navigation -->
         <nav class="hidden lg:flex items-center gap-6">
@@ -28,18 +44,20 @@ const links = [
             v-for="link in links" 
             :key="link.path" 
             :to="link.path"
-            class="text-gray-300 hover:text-primary transition-colors font-medium relative group"
-            active-class="text-primary"
+            class="text-text-secondary hover:text-primary transition-colors font-medium relative group"
+            active-class="text-primary font-bold"
           >
             {{ link.name }}
             <span class="absolute -bottom-1 right-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+            <span class="absolute -bottom-1 right-0 w-full h-0.5 bg-primary opacity-0 transition-opacity" :class="$route.path === link.path ? 'opacity-100' : ''"></span>
           </NuxtLink>
         </nav>
 
         <!-- Actions -->
         <div class="flex items-center gap-4">
+            <ThemeToggle />
             <button class="btn btn-primary">تسجيل الدخول</button>
-            <button class="lg:hidden text-white">
+            <button class="lg:hidden text-text-primary">
                 <!-- Mobile Menu Icon (Placeholder) -->
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
@@ -50,26 +68,26 @@ const links = [
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-8">
+    <main class="flex-grow relative z-10">
       <slot />
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark-card border-t border-gray-800 mt-auto">
+    <footer class="bg-card border-t border-border-color mt-auto transition-colors duration-300">
       <div class="container mx-auto px-4 py-12">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <!-- Brand -->
             <div>
                 <h3 class="text-xl font-bold text-primary mb-4">قناة الهدف</h3>
-                <p class="text-gray-400 text-sm leading-relaxed">
+                <p class="text-text-secondary text-sm leading-relaxed">
                     منصتك الأولى لتحليل وتداول الأسهم الكويتية. نقدم تحليلات فنية، أخبار اقتصادية، ومجتمع متفاعل للمتداولين.
                 </p>
             </div>
             
             <!-- Quick Links -->
             <div>
-                <h4 class="font-bold text-white mb-4">روابط سريعة</h4>
-                <ul class="space-y-2 text-gray-400">
+                <h4 class="font-bold text-text-primary mb-4">روابط سريعة</h4>
+                <ul class="space-y-2 text-text-secondary">
                     <li><NuxtLink to="/about" class="hover:text-primary">من نحن</NuxtLink></li>
                     <li><NuxtLink to="/contact" class="hover:text-primary">اتصل بنا</NuxtLink></li>
                     <li><NuxtLink to="/privacy" class="hover:text-primary">سياسة الخصوصية</NuxtLink></li>
@@ -78,16 +96,16 @@ const links = [
 
             <!-- Contact -->
              <div>
-                <h4 class="font-bold text-white mb-4">تواصل معنا</h4>
-                <ul class="space-y-2 text-gray-400">
+                <h4 class="font-bold text-text-primary mb-4">تواصل معنا</h4>
+                <ul class="space-y-2 text-text-secondary">
                     <li>support@alhadaf.com</li>
-                    <li>+965 1234 5678</li>
+                    <li>201099658770</li>
                 </ul>
             </div>
             
              <!-- Newsletter -->
             <div>
-                 <h4 class="font-bold text-white mb-4">النشرة البريدية</h4>
+                 <h4 class="font-bold text-text-primary mb-4">النشرة البريدية</h4>
                  <div class="flex gap-2">
                      <input type="email" placeholder="بريدك الإلكتروني" class="input text-sm">
                      <button class="btn btn-primary px-3">
@@ -103,5 +121,6 @@ const links = [
         </div>
       </div>
     </footer>
+    <ScrollToTop />
   </div>
 </template>

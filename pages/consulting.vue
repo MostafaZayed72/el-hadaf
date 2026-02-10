@@ -3,7 +3,7 @@ useHead({ title: 'استشارات - قناة الهدف' })
 </script>
 
 <template>
-  <div class="container py-8">
+  <div class="container mx-auto px-4 py-8 max-w-7xl">
      <div class="max-w-3xl mx-auto">
         <h1 class="text-3xl font-bold mb-2 text-center">خدمة الاستشارات الخاصة</h1>
         <p class="text-center text-gray-400 mb-10">احصل على استشارة مهنية من خبراء السوق لإدارة محفظتك بذكاء</p>
