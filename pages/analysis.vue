@@ -97,6 +97,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
+
 const { getStocks, getAnalysis } = useStocks()
 
 const stocksList = computed(() => getStocks())

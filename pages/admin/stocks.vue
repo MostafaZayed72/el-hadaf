@@ -60,8 +60,8 @@
     <!-- Modal -->
     <Teleport to="body">
       <div v-if="showModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-card w-full max-w-4xl rounded-xl border border-primary p-6 shadow-2xl my-8">
-          <h3 class="text-2xl font-bold text-page-text mb-6 border-b border-border-color pb-4">
+        <div class="bg-card w-full max-w-4xl rounded-xl border border-primary p-6 shadow-2xl my-8 max-h-[90vh] overflow-y-auto">
+          <h3 class="text-2xl font-bold text-page-text mb-6 border-b border-border-color pb-4 sticky top-0 bg-card z-10">
             {{ isEditing ? 'تعديل السهم' : 'إضافة سهم جديد' }}
           </h3>
 
