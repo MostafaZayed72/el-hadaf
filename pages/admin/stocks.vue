@@ -186,9 +186,69 @@ const isEditing = computed(() => !!form.value.id)
 
 const openModal = (stock = null) => {
   if (stock) {
-    form.value = { ...stock,  currentPrice: 0, target: 0, stopLoss: 0, technical: '', financial: '', behavioral: '', support: '', resistance: '', patterns: '', chartImageUrl: '' }
+    // Load stock basic info
+    form.value.id = stock.id
+    form.value.name = stock.name
+    form.value.symbol = stock.symbol || ''
+    form.value.logoUrl = stock.logoUrl || ''
+    
+    // Load analysis data from localStorage
+    const analysisData = getAnalysis(stock.id)
+    if (analysisData) {
+      form.value.currentPrice = analysisData.currentPrice || 0
+      form.value.target = analysisData.target || 0
+      form.value.stopLoss = analysisData.stopLoss || 0
+      form.value.technical = analysisData.technical || ''
+      form.value.financial = analysisData.financial || ''
+      form.value.behavioral = analysisData.behavioral || ''
+      form.value.chartImageUrl = analysisData.chartImageUrl || ''
+      form.value.patterns = analysisData.patterns || ''
+      
+      // Parse support and resistance from JSON strings
+      try {
+        const supportArray = analysisData.support ? JSON.parse(analysisData.support) : []
+        form.value.support = supportArray.join(', ')
+      } catch {
+        form.value.support = ''
+      }
+      
+      try {
+        const resistanceArray = analysisData.resistance ? JSON.parse(analysisData.resistance) : []
+        form.value.resistance = resistanceArray.join(', ')
+      } catch {
+        form.value.resistance = ''
+      }
+    } else {
+      // Reset analysis fields if no data exists
+      form.value.currentPrice = 0
+      form.value.target = 0
+      form.value.stopLoss = 0
+      form.value.technical = ''
+      form.value.financial = ''
+      form.value.behavioral = ''
+      form.value.support = ''
+      form.value.resistance = ''
+      form.value.patterns = ''
+      form.value.chartImageUrl = ''
+    }
   } else {
-    form.value = { id: '', name: '', symbol: '', logoUrl: '', currentPrice: 0, target: 0, stopLoss: 0, technical: '', financial: '', behavioral: '', support: '', resistance: '', patterns: '', chartImageUrl: '' }
+    // New stock - reset all fields
+    form.value = { 
+      id: '', 
+      name: '', 
+      symbol: '', 
+      logoUrl: '', 
+      currentPrice: 0, 
+      target: 0, 
+      stopLoss: 0, 
+      technical: '', 
+      financial: '', 
+      behavioral: '', 
+      support: '', 
+      resistance: '', 
+      patterns: '', 
+      chartImageUrl: '' 
+    }
   }
   showModal.value = true
 }
