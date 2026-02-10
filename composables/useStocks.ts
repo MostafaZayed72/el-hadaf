@@ -32,9 +32,9 @@ export const useStocks = () => {
     const getStocks = async () => {
         isLoading.value = true
         try {
-            const { data } = await useFetch('/api/stocks')
-            if (data.value) {
-                stocks.value = data.value
+            const data = await $fetch<Stock[]>('/api/stocks')
+            if (data) {
+                stocks.value = data
             }
         } catch (error) {
             console.error('Failed to fetch stocks:', error)
@@ -48,14 +48,11 @@ export const useStocks = () => {
     const getAnalysis = async (stockId: string) => {
         if (!stockId) return null
 
-        // Return cached data if available (optional optimization)
-        // if (analysisData.value[stockId]) return analysisData.value[stockId]
-
         try {
-            const { data } = await useFetch(`/api/analysis/${stockId}`)
-            if (data.value) {
-                analysisData.value[stockId] = data.value
-                return data.value
+            const data = await $fetch<StockAnalysis>(`/api/analysis/${stockId}`)
+            if (data) {
+                analysisData.value[stockId] = data
+                return data
             }
         } catch (error) {
             console.error(`Failed to fetch analysis for stock ${stockId}:`, error)
@@ -66,13 +63,13 @@ export const useStocks = () => {
     // Add new stock
     const addStock = async (stock: Omit<Stock, 'id'>) => {
         try {
-            const { data } = await useFetch('/api/stocks', {
+            const data = await $fetch<Stock>('/api/stocks', {
                 method: 'POST',
                 body: stock
             })
-            if (data.value) {
-                stocks.value.unshift(data.value)
-                return data.value
+            if (data) {
+                stocks.value.unshift(data)
+                return data
             }
         } catch (error) {
             console.error('Failed to add stock:', error)
@@ -83,17 +80,17 @@ export const useStocks = () => {
     // Update existing stock
     const updateStock = async (id: string, data: Partial<Stock>) => {
         try {
-            const { data: updated } = await useFetch(`/api/stocks/${id}`, {
+            const updated = await $fetch<Stock>(`/api/stocks/${id}`, {
                 method: 'PUT',
                 body: data
             })
 
-            if (updated.value) {
+            if (updated) {
                 const index = stocks.value.findIndex(s => s.id === id)
                 if (index !== -1) {
-                    stocks.value[index] = updated.value
+                    stocks.value[index] = updated
                 }
-                return updated.value
+                return updated
             }
         } catch (error) {
             console.error('Failed to update stock:', error)
@@ -104,7 +101,7 @@ export const useStocks = () => {
     // Delete stock
     const deleteStock = async (id: string) => {
         try {
-            await useFetch(`/api/stocks/${id}`, {
+            await $fetch(`/api/stocks/${id}`, {
                 method: 'DELETE'
             })
             stocks.value = stocks.value.filter(s => s.id !== id)
@@ -118,14 +115,14 @@ export const useStocks = () => {
     // Save/Update analysis
     const saveAnalysis = async (stockId: string, analysis: any) => {
         try {
-            const { data } = await useFetch(`/api/analysis/${stockId}`, {
+            const data = await $fetch<StockAnalysis>(`/api/analysis/${stockId}`, {
                 method: 'POST',
                 body: analysis
             })
 
-            if (data.value) {
-                analysisData.value[stockId] = data.value
-                return data.value
+            if (data) {
+                analysisData.value[stockId] = data
+                return data
             }
         } catch (error) {
             console.error('Failed to save analysis:', error)
