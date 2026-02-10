@@ -161,7 +161,7 @@ definePageMeta({
 })
 
 const { user, logout } = useAuth()
-const { stocks, getStocks, addStock, updateStock, deleteStock, saveAnalysis } = useStocks()
+const { stocks, getStocks, getAnalysis, addStock, updateStock, deleteStock, saveAnalysis } = useStocks()
 
 const showModal = ref(false)
 const saving = ref(false)
