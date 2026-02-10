@@ -9,7 +9,7 @@
             v-model="selectedStockId"
             :options="stocksList"
             placeholder="ابحث عن سهم..."
-            @change="fetchAnalysis"
+            @change="handleStockChange"
           />
         </div>
       </header>
@@ -17,88 +17,97 @@
       <div v-if="loading" class="text-center py-20 text-text-secondary animate-pulse">جاري التحميل...</div>
       
       <div v-else-if="analysis" class="space-y-6 animate-fade-in">
+        <!-- Stock Header with Logo -->
         <div class="flex items-center gap-4 mb-6 border-b border-border-color pb-4">
           <div class="w-16 h-16 bg-white rounded-full p-1 flex items-center justify-center overflow-hidden" v-if="analysis.stockLogo">
               <img :src="analysis.stockLogo" :alt="analysis.stockName" class="w-full h-full object-contain" />
           </div>
           <div>
               <h3 class="text-2xl font-bold text-page-text">{{ analysis.stockName }}</h3>
-              <p class="text-sm text-text-secondary">{{ analysis.stockId }}</p>
+              <p class="text-sm text-text-secondary" v-if="analysis.stockId">{{ analysis.stockId }}</p>
           </div>
         </div>
 
-        <!-- Top Summary Cards -->
+        <!-- Top Summary Cards - Only show if values exist -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="card flex flex-col items-center justify-center py-6 border-t-4 border-gray-500">
+          <div v-if="analysis.currentPrice" class="card flex flex-col items-center justify-center py-6 border-t-4 border-gray-500">
             <h3 class="text-text-secondary text-sm mb-2">السعر الحالي</h3>
             <div class="text-4xl font-mono font-bold text-page-text">{{ analysis.currentPrice }}</div>
           </div>
-          <div class="card flex flex-col items-center justify-center py-6 border-t-4 border-bull">
+          <div v-if="analysis.target" class="card flex flex-col items-center justify-center py-6 border-t-4 border-bull">
             <h3 class="text-text-secondary text-sm mb-2">الهدف (Target)</h3>
             <div class="text-4xl font-mono font-bold text-bull">{{ analysis.target }}</div>
           </div>
-          <div class="card flex flex-col items-center justify-center py-6 border-t-4 border-bear">
+          <div v-if="analysis.stopLoss" class="card flex flex-col items-center justify-center py-6 border-t-4 border-bear">
             <h3 class="text-text-secondary text-sm mb-2">وقف الخسارة</h3>
             <div class="text-4xl font-mono font-bold text-bear">{{ analysis.stopLoss }}</div>
           </div>
         </div>
 
-        <!-- Analysis Text Grid -->
+        <!-- Analysis Text Grid - Only show non-empty sections -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="card">
+          <div v-if="analysis.technical" class="card">
             <h3 class="font-bold text-primary mb-3 border-b border-border-color pb-2">التحليل الفني</h3>
             <p class="text-text-secondary leading-relaxed text-sm">{{ analysis.technical }}</p>
           </div>
-          <div class="card">
+          <div v-if="analysis.financial" class="card">
             <h3 class="font-bold text-primary mb-3 border-b border-border-color pb-2">التحليل المالي</h3>
             <p class="text-text-secondary leading-relaxed text-sm">{{ analysis.financial }}</p>
           </div>
-          <div class="card">
+          <div v-if="analysis.behavioral" class="card">
             <h3 class="font-bold text-primary mb-3 border-b border-border-color pb-2">التحليل السلوكي</h3>
             <p class="text-text-secondary leading-relaxed text-sm">{{ analysis.behavioral }}</p>
           </div>
         </div>
 
-        <!-- Support & Resistance -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="card">
-            <h3 class="font-bold text-page-text mb-4">الدعوم (Supports)</h3>
+        <!-- Support and Resistance -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" v-if="supportLevels.length || resistanceLevels.length">
+          <div class="card" v-if="supportLevels.length">
+            <h3 class="font-bold text-bull mb-3 border-b border-border-color pb-2">مستويات الدعم</h3>
             <div class="flex flex-wrap gap-2">
-              <span v-for="(val, idx) in parsedSupport" :key="idx" class="px-3 py-1 rounded-full bg-bull/10 text-bull border border-bull/30 font-mono text-sm font-bold">{{ val }}</span>
+              <span v-for="level in supportLevels" :key="level" class="px-3 py-1 bg-bull/20 text-bull rounded-full text-sm font-mono">
+                {{ level }}
+              </span>
             </div>
           </div>
-          <div class="card">
-            <h3 class="font-bold text-page-text mb-4">المقاومات (Resistances)</h3>
+          <div class="card" v-if="resistanceLevels.length">
+            <h3 class="font-bold text-bear mb-3 border-b border-border-color pb-2">مستويات المقاومة</h3>
             <div class="flex flex-wrap gap-2">
-              <span v-for="(val, idx) in parsedResistance" :key="idx" class="px-3 py-1 rounded-full bg-bear/10 text-bear border border-bear/30 font-mono text-sm font-bold">{{ val }}</span>
+              <span v-for="level in resistanceLevels" :key="level" class="px-3 py-1 bg-bear/20 text-bear rounded-full text-sm font-mono">
+                {{ level }}
+              </span>
             </div>
-          </div>
-          <div class="card">
-            <h3 class="font-bold text-page-text mb-4">النماذج الفنية</h3>
-            <p class="text-sm text-text-secondary">{{ analysis.patterns }}</p>
           </div>
         </div>
 
-        <!-- Chart -->
+        <!-- Patterns - Only show if exists -->
+        <div class="card" v-if="analysis.patterns">
+          <h3 class="font-bold text-primary mb-3 border-b border-border-color pb-2">النماذج الفنية</h3>
+          <p class="text-text-secondary">{{ analysis.patterns }}</p>
+        </div>
+
+        <!-- Chart Image - Only show if exists -->
         <div class="card" v-if="analysis.chartImageUrl">
-          <h3 class="font-bold text-page-text mb-4">الرسم البياني</h3>
-          <div class="rounded-lg overflow-hidden border border-border-color">
-            <img :src="analysis.chartImageUrl" alt="Technical Chart" class="w-full h-auto" />
+          <h3 class="font-bold text-primary mb-3 border-b border-border-color pb-2">الشارت</h3>
+          <div class="overflow-hidden rounded-lg">
+            <img :src="analysis.chartImageUrl" alt="Chart" class="w-full h-auto" />
           </div>
         </div>
       </div>
 
-      <div v-else class="text-center py-20 text-text-secondary card">
-        <div class="text-4xl mb-4">🔍</div>
-        <p>يرجى اختيار سهم لعرض التحليل.</p>
+      <div v-else class="text-center py-20 text-text-secondary">
+        <div class="text-6xl mb-4">🔍</div>
+        <p>يرجى اختيار تحليل السهم</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 
+const route = useRoute()
+const router = useRouter()
 const { getStocks, getAnalysis } = useStocks()
 
 const stocksList = computed(() => getStocks())
@@ -110,23 +119,51 @@ async function fetchAnalysis() {
   if (!selectedStockId.value) return
   loading.value = true
   
- setTimeout(() => {
-     analysis.value = getAnalysis(selectedStockId.value)
-      loading.value = false
-  }, 300)
+  try {
+    const data = getAnalysis(selectedStockId.value)
+    analysis.value = data
+  } finally {
+    loading.value = false
+  }
 }
 
-// Parsed Data
-const parsedSupport = computed(() => {
-  try { return JSON.parse(analysis.value?.support || '[]') } catch { return [] }
+// Handle stock selection and update URL
+function handleStockChange() {
+  router.push({ query: { stock: selectedStockId.value } })
+  fetchAnalysis()
+}
+
+// Parse support and resistance from JSON strings
+const supportLevels = computed(() => {
+  try {
+    return analysis.value?.support ? JSON.parse(analysis.value.support) : []
+  } catch {
+    return []
+  }
 })
 
-const parsedResistance = computed(() => {
-  try { return JSON.parse(analysis.value?.resistance || '[]') } catch { return [] }
+const resistanceLevels = computed(() => {
+  try {
+    return analysis.value?.resistance ? JSON.parse(analysis.value.resistance) : []
+  } catch {
+    return []
+  }
+})
+
+// Load stock from URL on mount and watch for changes
+onMounted(() => {
+  const stockId = route.query.stock as string
+  if (stockId) {
+    selectedStockId.value = stockId
+    fetchAnalysis()
+  }
+})
+
+// Watch for URL changes (browser back/forward)
+watch(() => route.query.stock, (newStock) => {
+  if (newStock && newStock !== selectedStockId.value) {
+    selectedStockId.value = newStock as string
+    fetchAnalysis()
+  }
 })
 </script>
-
-<style scoped>
-.animate-fade-in { animation: fadeIn 0.5s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-</style>

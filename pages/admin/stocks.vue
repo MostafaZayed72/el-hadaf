@@ -73,8 +73,8 @@
                 <input v-model="form.name" required class="input w-full" placeholder="مثال: بنك بوبيان" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-text-secondary mb-2">رمز السهم *</label>
-                <input v-model="form.symbol" required class="input w-full" placeholder="مثال: BOUBYAN" />
+                <label class="block text-sm font-medium text-text-secondary mb-2">رمز السهم</label>
+                <input v-model="form.symbol" class="input w-full" placeholder="مثال: BOUBYAN" />
               </div>
             </div>
 
