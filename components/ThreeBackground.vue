@@ -54,7 +54,7 @@ onMounted(() => {
 
   // Create Particles (Stock Market Data Points)
   const particlesGeometry = new THREE.BufferGeometry()
-  const particlesCount = 3000
+  const particlesCount = 800 // Reduced from 3000 for better performance
   const posArray = new Float32Array(particlesCount * 3)
   const colorArray = new Float32Array(particlesCount * 3)
 
@@ -105,7 +105,7 @@ onMounted(() => {
   const linesGeometry = new THREE.BufferGeometry()
   const linePositions: number[] = []
   
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 20; i++) { // Reduced from 50 for better performance
     const x1 = (Math.random() - 0.5) * 80
     const y1 = (Math.random() - 0.5) * 80
     const z1 = (Math.random() - 0.5) * 80

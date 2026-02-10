@@ -1,14 +1,18 @@
+import { defineEventHandler } from 'h3'
+import supabase from '../../utils/supabase'
 
-import prisma from '~/server/lib/prisma'
+export default defineEventHandler(async () => {
+    const { data: stocks, error } = await supabase
+        .from('Stock')
+        .select('*')
+        .order('createdAt', { ascending: false })
 
-export default defineEventHandler(async (event) => {
-    const stocks = await prisma.stock.findMany({
-        include: {
-            analyses: {
-                orderBy: { createdAt: 'desc' },
-                take: 1
-            }
-        }
-    })
+    if (error) {
+        throw createError({
+            statusCode: 500,
+            message: error.message
+        })
+    }
+
     return stocks
 })

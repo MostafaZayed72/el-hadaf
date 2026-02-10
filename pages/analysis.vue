@@ -108,56 +108,80 @@ import { ref, computed, onMounted, watch } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
-const { getStocks, getAnalysis } = useStocks()
+const { stocks, getStocks, getAnalysis } = useStocks()
 
-const stocksList = computed(() => getStocks())
+// State
 const selectedStockId = ref('')
 const analysis = ref(null)
 const loading = ref(false)
 
+// Computed
+const stocksList = computed(() => stocks.value)
+const selectedStock = computed(() => {
+  return stocks.value.find(s => s.id === selectedStockId.value)
+})
+
+// Lifecycle
+onMounted(async () => {
+  await getStocks()
+  
+  // Check URL query for shared stock
+  const stockId = route.query.stock as string
+  if (stockId) {
+    selectedStockId.value = stockId
+    await fetchAnalysis()
+  }
+})
+
+// Methods
+async function handleStockChange() {
+  router.push({ query: { stock: selectedStockId.value } })
+  await fetchAnalysis()
+}
+
 async function fetchAnalysis() {
   if (!selectedStockId.value) return
-  loading.value = true
   
+  loading.value = true
   try {
-    const data = getAnalysis(selectedStockId.value)
-    analysis.value = data
+    const data = await getAnalysis(selectedStockId.value)
+    
+    if (data) {
+        // Parse JSON strings for support/resistance if they come as strings
+        let support = data.support
+        let resistance = data.resistance
+
+        try {
+            if (typeof support === 'string' && support.startsWith('[')) {
+                support = JSON.parse(support)
+            }
+        } catch (e) {
+            console.error('Error parsing support', e)
+        }
+
+        try {
+            if (typeof resistance === 'string' && resistance.startsWith('[')) {
+                resistance = JSON.parse(resistance)
+            }
+        } catch (e) {
+             console.error('Error parsing resistance', e)
+        }
+
+        analysis.value = {
+            ...data,
+            support,
+            resistance
+        }
+    } else {
+        analysis.value = null
+    }
+  } catch (e) {
+    console.error('Error fetching analysis:', e)
   } finally {
     loading.value = false
   }
 }
 
-// Handle stock selection and update URL
-function handleStockChange() {
-  router.push({ query: { stock: selectedStockId.value } })
-  fetchAnalysis()
-}
-
-// Parse support and resistance from JSON strings
-const supportLevels = computed(() => {
-  try {
-    return analysis.value?.support ? JSON.parse(analysis.value.support) : []
-  } catch {
-    return []
-  }
-})
-
-const resistanceLevels = computed(() => {
-  try {
-    return analysis.value?.resistance ? JSON.parse(analysis.value.resistance) : []
-  } catch {
-    return []
-  }
-})
-
-// Load stock from URL on mount and watch for changes
-onMounted(() => {
-  const stockId = route.query.stock as string
-  if (stockId) {
-    selectedStockId.value = stockId
-    fetchAnalysis()
-  }
-})
 
 // Watch for URL changes (browser back/forward)
 watch(() => route.query.stock, (newStock) => {

@@ -184,7 +184,7 @@ const form = ref({
 
 const isEditing = computed(() => !!form.value.id)
 
-const openModal = (stock = null) => {
+const openModal = async (stock = null) => {
   if (stock) {
     // Load stock basic info
     form.value.id = stock.id
@@ -192,8 +192,8 @@ const openModal = (stock = null) => {
     form.value.symbol = stock.symbol || ''
     form.value.logoUrl = stock.logoUrl || ''
     
-    // Load analysis data from localStorage
-    const analysisData = getAnalysis(stock.id)
+    // Load analysis data from API
+    const analysisData = await getAnalysis(stock.id)
     if (analysisData) {
       form.value.currentPrice = analysisData.currentPrice || 0
       form.value.target = analysisData.target || 0
@@ -207,16 +207,16 @@ const openModal = (stock = null) => {
       // Parse support and resistance from JSON strings
       try {
         const supportArray = analysisData.support ? JSON.parse(analysisData.support) : []
-        form.value.support = supportArray.join(', ')
+        form.value.support = Array.isArray(supportArray) ? supportArray.join(', ') : analysisData.support
       } catch {
-        form.value.support = ''
+        form.value.support = analysisData.support || ''
       }
       
       try {
         const resistanceArray = analysisData.resistance ? JSON.parse(analysisData.resistance) : []
-        form.value.resistance = resistanceArray.join(', ')
+        form.value.resistance = Array.isArray(resistanceArray) ? resistanceArray.join(', ') : analysisData.resistance
       } catch {
-        form.value.resistance = ''
+        form.value.resistance = analysisData.resistance || ''
       }
     } else {
       // Reset analysis fields if no data exists
@@ -256,43 +256,70 @@ const openModal = (stock = null) => {
 const saveStock = async () => {
   saving.value = true
   try {
+    let stockId = form.value.id
+    
     if (isEditing.value) {
-      updateStock(form.value.id, { name: form.value.name, symbol: form.value.symbol, logoUrl: form.value.logoUrl })
+      await updateStock(form.value.id, { 
+        name: form.value.name, 
+        symbol: form.value.symbol, 
+        logoUrl: form.value.logoUrl 
+      })
     } else {
-      const newStock = addStock({ name: form.value.name, symbol: form.value.symbol, logoUrl: form.value.logoUrl })
-      form.value.id = newStock.id
+      const newStock = await addStock({ 
+        name: form.value.name, 
+        symbol: form.value.symbol, 
+        logoUrl: form.value.logoUrl 
+      })
+      if (newStock) {
+        stockId = newStock.id
+      }
     }
 
     // Save analysis
-    const supportArray = form.value.support.split(',').map(s => s.trim()).filter(Boolean)
-    const resistanceArray = form.value.resistance.split(',').map(s => s.trim()).filter(Boolean)
+    if (stockId) {
+        const supportArray = form.value.support.split(',').map(s => s.trim()).filter(Boolean)
+        const resistanceArray = form.value.resistance.split(',').map(s => s.trim()).filter(Boolean)
 
-    saveAnalysis(form.value.id, {
-      stockName: form.value.name,
-      stockLogo: form.value.logoUrl,
-      currentPrice: form.value.currentPrice,
-      target: form.value.target,
-      stopLoss: form.value.stopLoss,
-      technical: form.value.technical,
-      financial: form.value.financial,
-      behavioral: form.value.behavioral,
-      support: JSON.stringify(supportArray),
-      resistance: JSON.stringify(resistanceArray),
-      patterns: form.value.patterns,
-      chartImageUrl: form.value.chartImageUrl
-    })
+        await saveAnalysis(stockId, {
+        stockName: form.value.name,
+        stockLogo: form.value.logoUrl,
+        currentPrice: form.value.currentPrice,
+        target: form.value.target,
+        stopLoss: form.value.stopLoss,
+        technical: form.value.technical,
+        financial: form.value.financial,
+        behavioral: form.value.behavioral,
+        support: JSON.stringify(supportArray),
+        resistance: JSON.stringify(resistanceArray),
+        patterns: form.value.patterns,
+        chartImageUrl: form.value.chartImageUrl
+        })
+    }
 
     showModal.value = false
+    await getStocks() // Refresh list
+  } catch (e) {
+    console.error('Error saving stock:', e)
+    alert('حدث خطأ أثناء الحفظ')
   } finally {
     saving.value = false
   }
 }
 
-const confirmDelete = (id: string) => {
+const confirmDelete = async (id: string) => {
   if (confirm('هل أنت متأكد من حذف هذا السهم؟')) {
-    deleteStock(id)
+    try {
+        await deleteStock(id)
+    } catch (e) {
+        alert('حدث خطأ أثناء الحذف')
+    }
   }
 }
+
+// Initial fetch
+onMounted(() => {
+    getStocks()
+})
 
 const handleLogout = () => {
   logout()

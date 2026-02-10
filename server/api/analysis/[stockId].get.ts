@@ -1,32 +1,33 @@
-
-import prisma from '~/server/lib/prisma'
+import { defineEventHandler, createError } from 'h3'
+import supabase from '../../utils/supabase'
 
 export default defineEventHandler(async (event) => {
-    const stockId = getRouterParam(event, 'stockId')
+    const stockId = event.context.params?.stockId
 
     if (!stockId) {
-        throw createError({
-            statusCode: 400,
-            statusMessage: 'Stock ID is required',
-        })
+        throw createError({ statusCode: 400, message: 'Stock ID is required' })
     }
 
-    const stock = await prisma.stock.findUnique({
-        where: { id: parseInt(stockId) },
-        include: {
-            analyses: {
-                orderBy: { createdAt: 'desc' },
-                take: 1
-            }
-        }
-    })
+    // Fetch analysis and include stock data
+    const { data: analysis, error } = await supabase
+        .from('Analysis')
+        .select('*, Stock:stockId (name, logoUrl)')
+        .eq('stockId', stockId)
+        .maybeSingle()
 
-    if (!stock) {
-        throw createError({
-            statusCode: 404,
-            statusMessage: 'Stock not found',
-        })
+    if (error) {
+        // Return null instead of error to not break the UI
+        return null
     }
 
-    return stock
+    if (!analysis) {
+        return null
+    }
+
+    // Flatten the response to match frontend expectations
+    return {
+        ...analysis,
+        stockName: analysis.Stock.name,
+        stockLogo: analysis.Stock.logoUrl
+    }
 })
