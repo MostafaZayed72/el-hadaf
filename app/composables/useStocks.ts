@@ -6,7 +6,7 @@ interface Stock {
     logoUrl?: string
 }
 
-interface StockAnalysis {
+export interface StockAnalysis {
     id: string
     stockId: string
     stockName: string

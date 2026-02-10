@@ -15,7 +15,7 @@
             <div class="mb-8 flex justify-center">
                  <div class="relative group">
                     <div class="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse group-hover:bg-primary/40 transition-all duration-500"></div>
-                    <img src="/public/logo.png" alt="قناة الهدف" class="relative h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 rounded-full object-cover bg-white p-1 border-4 border-primary shadow-2xl transform transition-transform duration-500 group-hover:scale-105" />
+                    <img src="/logo.png" alt="قناة الهدف" class="relative h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 rounded-full object-cover bg-white p-1 border-4 border-primary shadow-2xl transform transition-transform duration-500 group-hover:scale-105" />
                  </div>
             </div>
 

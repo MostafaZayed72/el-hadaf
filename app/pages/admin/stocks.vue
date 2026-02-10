@@ -3,7 +3,17 @@
     <!-- Header -->
     <header class="bg-card border-b border-border-color transition-colors duration-300">
       <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-page-text">إدارة الأسهم</h1>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-4">
+          <h1 class="text-2xl font-bold text-page-text">إدارة الأسهم</h1>
+          <NuxtLink to="/admin/stats" class="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20 transition-colors">
+            📊 الإحصائيات
+          </NuxtLink>
+        </div>
+          <NuxtLink to="/admin/stats" class="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20 transition-colors">
+            📊 الإحصائيات
+          </NuxtLink>
+        </div>
         <div class="flex items-center gap-4">
           <span class="text-text-secondary">مرحباً, {{ user?.name }}</span>
           <button @click="handleLogout" class="btn bg-red-600 hover:bg-red-700 text-white">

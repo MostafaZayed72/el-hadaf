@@ -3,7 +3,7 @@
    <div class="w-full max-w-md">
       <!-- Logo -->
       <div class="text-center mb-8">
-        <img src="/public/logo.png" alt="قناة الهدف" class="h-24 w-24 mx-auto rounded-full object-cover bg-white p-1 border-4 border-primary shadow-2xl mb-4" />
+        <img src="/logo.png" alt="قناة الهدف" class="h-24 w-24 mx-auto rounded-full object-cover bg-white p-1 border-4 border-primary shadow-2xl mb-4" />
         <h1 class="text-3xl font-bold text-page-text">لوحة تحكم الأدمن</h1>
         <p class="text-text-secondary mt-2">تسجيل الدخول للوصول إلى إدارة الأسهم</p>
       </div>

@@ -82,6 +82,7 @@ const props = defineProps<{
   options: Option[]
   modelValue: string
   placeholder?: string
+  clearAfterSelect?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -108,7 +109,11 @@ const filterOptions = () => {
 }
 
 const selectOption = (option: Option) => {
-  searchQuery.value = `${option.name} (${option.symbol})`
+  if (props.clearAfterSelect) {
+    searchQuery.value = ''
+  } else {
+    searchQuery.value = option.symbol ? `${option.name} (${option.symbol})` : option.name
+  }
   emit('update:modelValue', option.id)
   emit('change', option.id)
   showDropdown.value = false
@@ -125,10 +130,10 @@ onMounted(() => {
   document.addEventListener('click', handleClickOutside)
   
   // Set initial display value if modelValue exists
-  if (props.modelValue) {
+  if (props.modelValue && !props.clearAfterSelect) {
     const selected = props.options.find(opt => opt.id === props.modelValue)
     if (selected) {
-      searchQuery.value = `${selected.name} (${selected.symbol})`
+      searchQuery.value = selected.symbol ? `${selected.name} (${selected.symbol})` : selected.name
     }
   }
 })
@@ -139,10 +144,12 @@ onUnmounted(() => {
 
 // Watch for external changes to modelValue
 watch(() => props.modelValue, (newVal) => {
+  if (props.clearAfterSelect) return
+
   if (newVal) {
     const selected = props.options.find(opt => opt.id === newVal)
     if (selected) {
-      searchQuery.value = `${selected.name} (${selected.symbol})`
+      searchQuery.value = selected.symbol ? `${selected.name} (${selected.symbol})` : selected.name
     }
   } else {
     searchQuery.value = ''

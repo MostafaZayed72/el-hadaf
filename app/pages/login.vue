@@ -32,7 +32,7 @@ const handleLogin = async () => {
     
     <div class="card w-full max-w-md p-8 relative z-10 border border-border-color backdrop-blur-md transition-colors duration-300">
       <div class="text-center mb-8">
-          <img src="/public/logo.png" alt="قناة الهدف" class="h-24 w-24 rounded-full object-cover mx-auto mb-4 bg-white p-1 border-4 border-primary" />
+          <img src="/logo.png" alt="قناة الهدف" class="h-24 w-24 rounded-full object-cover mx-auto mb-4 bg-white p-1 border-4 border-primary" />
           <h1 class="text-3xl font-bold text-page-text mb-2">مرحباً بعودتك</h1>
 
 

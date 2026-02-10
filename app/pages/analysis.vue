@@ -9,6 +9,7 @@
             v-model="selectedStockId"
             :options="stocksList"
             placeholder="ابحث عن سهم..."
+            :clear-after-select="true"
             @change="handleStockChange"
           />
         </div>
@@ -18,13 +19,13 @@
       
       <div v-else-if="analysis" class="space-y-6 animate-fade-in">
         <!-- Stock Header with Logo -->
-        <div class="flex items-center gap-4 mb-6 border-b border-border-color pb-4">
-          <div class="w-16 h-16 bg-white rounded-full p-1 flex items-center justify-center overflow-hidden" v-if="analysis.stockLogo">
+        <!-- Stock Header with Logo -->
+        <div class="flex flex-col items-center justify-center mb-8 border-b border-border-color pb-8 text-center">
+          <div class="w-24 h-24 bg-white rounded-full p-2 flex items-center justify-center overflow-hidden shadow-lg mb-4" v-if="analysis.stockLogo">
               <img :src="analysis.stockLogo" :alt="analysis.stockName" class="w-full h-full object-contain" />
           </div>
           <div>
-              <h3 class="text-2xl font-bold text-page-text">{{ analysis.stockName }}</h3>
-              <p class="text-sm text-text-secondary" v-if="analysis.stockId">{{ analysis.stockId }}</p>
+              <h3 class="text-3xl font-bold text-page-text">{{ analysis.stockName }}</h3>
           </div>
         </div>
 
@@ -108,7 +109,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useStocks } from '../composables/useStocks'
+import { useStocks, type StockAnalysis } from '../composables/useStocks'
 
 const route = useRoute()
 const router = useRouter()
@@ -116,7 +117,7 @@ const { stocks, getStocks, getAnalysis } = useStocks()
 
 // State
 const selectedStockId = ref('')
-const analysis = ref(null)
+const analysis = ref<StockAnalysis | null>(null)
 const loading = ref(false)
 
 // Computed

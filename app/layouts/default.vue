@@ -32,7 +32,7 @@ onMounted(() => {
       <div class="container mx-auto px-4 h-20 flex items-center justify-between">
         <!-- Logo -->
         <NuxtLink to="/" class="flex items-center gap-2">
-          <img src="/public/logo.png" alt="قناة الهدف" class="h-12 w-12 rounded-full object-cover bg-white p-0.5 border-2 border-primary" />
+          <img src="/logo.png" alt="قناة الهدف" class="h-12 w-12 rounded-full object-cover bg-white p-0.5 border-2 border-primary" />
         </NuxtLink>
 
 
@@ -99,7 +99,7 @@ onMounted(() => {
                 <h4 class="font-bold text-text-primary mb-4">تواصل معنا</h4>
                 <ul class="space-y-2 text-text-secondary">
                     <li>support@alhadaf.com</li>
-                    <li>201099658770</li>
+                    <!-- <li>201099658770</li> -->
                 </ul>
             </div>
             
