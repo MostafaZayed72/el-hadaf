@@ -58,9 +58,56 @@ export default defineEventHandler(async (event) => {
         .sort((a, b) => b.count - a.count)
         .slice(0, 10)
 
+    // 4. Enrich with Stock Names
+    const stockIds = new Set<string>()
+    const extractStockId = (path: string) => {
+        if (!path) return null
+        const match = path.match(/[?&]stock=([^&]+)/)
+        return match ? match[1] : null
+    }
+
+    // Collect IDs from top pages and recent visitors
+    const allPaths = [...topPages.map(p => p.path), ...(recentVisitors || []).map(v => v.path)]
+    allPaths.forEach(path => {
+        const id = extractStockId(path)
+        if (id) stockIds.add(id)
+    })
+
+    const stockMap = new Map<string, string>()
+    if (stockIds.size > 0) {
+        const { data: stocks } = await client
+            .from('Stock')
+            .select('id, name')
+            .in('id', Array.from(stockIds))
+
+        stocks?.forEach(s => stockMap.set(s.id, s.name))
+    }
+
+    const enrichPath = (path: string) => {
+        const id = extractStockId(path)
+        if (id && stockMap.has(id)) {
+            return {
+                label: stockMap.get(id)!,
+                url: path,
+                isStock: true
+            }
+        }
+        return {
+            label: path,
+            url: path,
+            isStock: false
+        }
+    }
+
     return {
         totalViews: totalViews || 0,
-        recentVisitors: recentVisitors || [],
-        topPages
+        recentVisitors: (recentVisitors || []).map(v => ({
+            ...v,
+            ...enrichPath(v.path)
+        })),
+        topPages: topPages.map(p => ({
+            ...p,
+            ...enrichPath(p.path)
+        }))
     }
 })

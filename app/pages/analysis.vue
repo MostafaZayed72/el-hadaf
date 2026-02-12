@@ -26,6 +26,9 @@
           </div>
           <div>
               <h3 class="text-3xl font-bold text-page-text">{{ analysis.stockName }}</h3>
+              <div v-if="analysis.updatedAt" class="text-sm text-text-secondary mt-2">
+                آخر تحديث: {{ new Date(analysis.updatedAt).toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' }) }}
+              </div>
           </div>
         </div>
 

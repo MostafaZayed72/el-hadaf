@@ -50,7 +50,12 @@
                 </thead>
                 <tbody class="divide-y divide-border-color">
                   <tr v-for="page in stats?.topPages" :key="page.path" class="hover:bg-primary/5">
-                    <td class="p-3 text-page-text dir-ltr text-left">{{ page.path }}</td>
+                    <td class="p-3 text-page-text dir-ltr text-left">
+                        <NuxtLink v-if="page.isStock" :to="page.url" class="text-primary hover:underline font-bold">
+                            {{ page.label }}
+                        </NuxtLink>
+                        <span v-else>{{ page.label }}</span>
+                    </td>
                     <td class="p-3 font-mono font-bold text-primary">{{ page.count }}</td>
                   </tr>
                   <tr v-if="!stats?.topPages?.length">
@@ -84,7 +89,10 @@
                       {{ getBrowserName(visitor.user_agent) }}
                     </td>
                     <td class="p-3 text-page-text dir-ltr text-left max-w-[150px] truncate" :title="visitor.path">
-                      {{ visitor.path }}
+                        <NuxtLink v-if="visitor.isStock" :to="visitor.url" class="text-primary hover:underline font-bold">
+                            {{ visitor.label }}
+                        </NuxtLink>
+                        <span v-else>{{ visitor.label }}</span>
                     </td>
                   </tr>
                    <tr v-if="!stats?.recentVisitors?.length">

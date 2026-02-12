@@ -21,6 +21,7 @@ export interface StockAnalysis {
     resistance: string | null
     patterns: string | null
     chartImageUrl: string | null
+    updatedAt?: string | null
 }
 
 export const useStocks = () => {
