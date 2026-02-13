@@ -81,11 +81,10 @@
       </div>
 
       <!-- TOP RIGHT: DYNAMIC LABEL -->
-      <div class="absolute top-[230px] right-[140px] group cursor-pointer text-right z-30">
-        <Transition name="fade" mode="out-in">
+      <div class="absolute top-[230px] right-[140px] group cursor-pointer text-right z-30 h-10 w-40">
+        <Transition name="fade">
            <!-- Key ensures animation triggers on change -->
-           <!-- Removed animation-delay to make it visible immediately -->
-           <div :key="dynamicRightLabel" class="anim-label px-4 py-2 rounded-xl">{{ dynamicRightLabel }}</div>
+           <div :key="dynamicRightLabel" class="anim-label px-4 py-2 rounded-xl border border-transparent">{{ dynamicRightLabel }}</div>
         </Transition>
       </div>
 
@@ -185,10 +184,13 @@ onMounted(() => {
   100% { color: #94a3b8; background: transparent; }
 }
 
-/* VUE TRANSITION: FADE */
+/* VUE TRANSITION: FADE-INSTANT */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.3s ease;
+  position: absolute; /* Stack them on top of each other */
+  right: 0; /* Anchor to right */
+  width: max-content;
 }
 .fade-enter-from,
 .fade-leave-to {
