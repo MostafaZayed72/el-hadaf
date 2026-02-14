@@ -30,19 +30,22 @@ export const useStocks = () => {
     const isLoading = useState('stocksLoading', () => false)
 
     // Fetch all stocks from API
-    const getStocks = async () => {
+    const getStocks = async (params = { page: 1, limit: 12, search: '' }) => {
         isLoading.value = true
         try {
-            const data = await $fetch<Stock[]>('/api/stocks')
+            const data = await $fetch<{ data: Stock[], count: number, totalPages: number }>('/api/stocks', {
+                params
+            })
             if (data) {
-                stocks.value = data
+                stocks.value = data.data
+                return data
             }
         } catch (error) {
             console.error('Failed to fetch stocks:', error)
         } finally {
             isLoading.value = false
         }
-        return stocks.value
+        return { data: stocks.value, count: 0, totalPages: 0 }
     }
 
     // Fetch analysis for a specific stock

@@ -4,12 +4,7 @@
     <header class="bg-card border-b border-border-color transition-colors duration-300">
       <div class="container mx-auto px-4 py-4 flex justify-between items-center">
         <div class="flex items-center gap-4">
-          <div class="flex items-center gap-4">
           <h1 class="text-2xl font-bold text-page-text">إدارة الأسهم</h1>
-          <NuxtLink to="/admin/stats" class="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20 transition-colors">
-            📊 الإحصائيات
-          </NuxtLink>
-        </div>
           <NuxtLink to="/admin/stats" class="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full hover:bg-primary/20 transition-colors">
             📊 الإحصائيات
           </NuxtLink>
@@ -25,10 +20,25 @@
 
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
+      <!-- Stock List Container -->
       <!-- Add Button -->
-      <div class="flex justify-between items-center mb-8">
+      <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h2 class="text-2xl font-bold text-page-text">قائمة الأسهم</h2>
-        <button @click="openModal()" class="btn btn-primary">
+        
+        <div class="flex-1 w-full md:max-w-md mx-4">
+             <div class="relative">
+                <input 
+                    v-model="searchQuery" 
+                    @input="handleSearch"
+                    type="text" 
+                    placeholder="بحث باسم السهم أو الرمز..." 
+                    class="input w-full pr-10"
+                />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+             </div>
+        </div>
+
+        <button @click="openModal()" class="btn btn-primary whitespace-nowrap">
           + إضافة سهم جديد
         </button>
       </div>
@@ -51,6 +61,9 @@
           </div>
 
           <div class="flex gap-2 mt-4">
+            <NuxtLink :to="`/analysis?stock=${stock.symbol}`" target="_blank" class="btn bg-gray-100 hover:bg-gray-200 text-gray-800 flex-1 text-center">
+              عرض التحليل
+            </NuxtLink>
             <button @click="openModal(stock)" class="btn bg-blue-600 hover:bg-blue-700 text-white flex-1">
               تعديل
             </button>
@@ -61,7 +74,32 @@
         </div>
       </div>
 
-      <div v-if="stocks.length === 0" class="text-center py-20 text-text-secondary">
+
+
+      <!-- Pagination -->
+      <div v-if="totalPages > 1" class="flex justify-center items-center gap-2 mt-8">
+        <button 
+            @click="changePage(currentPage - 1)" 
+            :disabled="currentPage === 1"
+            class="btn bg-card border border-border-color hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            السابق
+        </button>
+        
+        <span class="text-text-secondary px-4">
+            صفحة {{ currentPage }} من {{ totalPages }}
+        </span>
+
+        <button 
+            @click="changePage(currentPage + 1)" 
+            :disabled="currentPage === totalPages"
+            class="btn bg-card border border-border-color hover:border-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            التالي
+        </button>
+      </div>
+
+      <div v-if="stocks.length === 0 && !loading" class="text-center py-20 text-text-secondary">
         <p class="text-4xl mb-4">📊</p>
         <p>لم يتم إضافة أي أسهم بعد</p>
       </div>
@@ -172,6 +210,13 @@ definePageMeta({
 
 const { user, logout } = useAuth()
 const { stocks, getStocks, getAnalysis, addStock, updateStock, deleteStock, saveAnalysis } = useStocks()
+
+// Pagination & Search State
+const currentPage = ref(1)
+const totalPages = ref(1)
+const searchQuery = ref('')
+const loading = ref(false)
+let searchTimeout: NodeJS.Timeout
 
 const showModal = ref(false)
 const saving = ref(false)
@@ -307,7 +352,7 @@ const saveStock = async () => {
     }
 
     showModal.value = false
-    await getStocks() // Refresh list
+    await fetchStocks() // Refresh list
   } catch (e) {
     console.error('Error saving stock:', e)
     alert('حدث خطأ أثناء الحفظ')
@@ -326,9 +371,42 @@ const confirmDelete = async (id: string) => {
   }
 }
 
+// Methods
+const fetchStocks = async () => {
+    loading.value = true
+    try {
+        const result = await getStocks({
+            page: currentPage.value,
+            limit: 12,
+            search: searchQuery.value
+        })
+        totalPages.value = result.totalPages || 0
+    } catch (e) {
+        console.error(e)
+    } finally {
+        loading.value = false
+    }
+}
+
+const handleSearch = () => {
+    clearTimeout(searchTimeout)
+    searchTimeout = setTimeout(() => {
+        currentPage.value = 1
+        fetchStocks()
+    }, 500)
+}
+
+const changePage = (page: number) => {
+    if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page
+        fetchStocks()
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+}
+
 // Initial fetch
 onMounted(() => {
-    getStocks()
+    fetchStocks()
 })
 
 const handleLogout = () => {

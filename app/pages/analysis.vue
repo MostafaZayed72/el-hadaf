@@ -8,6 +8,7 @@
           <SearchableSelect
             v-model="selectedStockId"
             :options="stocksList"
+            :option-label="(stock) => `${stock.name} (${stock.symbol})`"
             placeholder="ابحث عن سهم..."
             :clear-after-select="true"
             @change="handleStockChange"
@@ -27,7 +28,14 @@
           <div>
               <h3 class="text-3xl font-bold text-page-text">{{ analysis.stockName }}</h3>
               <div v-if="analysis.updatedAt" class="text-sm text-text-secondary mt-2">
-                آخر تحديث: {{ new Date(analysis.updatedAt).toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' }) }}
+                آخر تحديث: {{ new Date(analysis.updatedAt).toLocaleDateString('ar-EG', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric', 
+                  hour: '2-digit', 
+                  minute: '2-digit',
+                  calendar: 'gregory'
+                }) }}
               </div>
           </div>
         </div>
@@ -150,17 +158,29 @@ onMounted(async () => {
   await getStocks()
   
   // Check URL query for shared stock
-  const stockId = route.query.stock as string
-  if (stockId) {
-    selectedStockId.value = stockId
-    await fetchAnalysis()
+  const stockParam = route.query.stock as string
+  if (stockParam) {
+    // Check if it's an ID or Symbol
+    const stockBySymbol = stocks.value.find(s => s.symbol === stockParam)
+    const stockById = stocks.value.find(s => s.id === stockParam)
+    
+    if (stockBySymbol) {
+        selectedStockId.value = stockBySymbol.id
+        await fetchAnalysis()
+    } else if (stockById) {
+        selectedStockId.value = stockById.id
+        await fetchAnalysis()
+    }
   }
 })
 
 // Methods
 async function handleStockChange() {
-  router.push({ query: { stock: selectedStockId.value } })
-  await fetchAnalysis()
+  const stock = stocks.value.find(s => s.id === selectedStockId.value)
+  if (stock) {
+      router.push({ query: { stock: stock.symbol } })
+      await fetchAnalysis()
+  }
 }
 
 async function fetchAnalysis() {
@@ -208,10 +228,29 @@ async function fetchAnalysis() {
 
 
 // Watch for URL changes (browser back/forward)
-watch(() => route.query.stock, (newStock) => {
-  if (newStock && newStock !== selectedStockId.value) {
-    selectedStockId.value = newStock as string
-    fetchAnalysis()
+watch(() => route.query.stock, (newStockParam) => {
+  if (newStockParam) {
+     const stockBySymbol = stocks.value.find(s => s.symbol === newStockParam)
+     const stockById = stocks.value.find(s => s.id === newStockParam)
+
+     if (stockBySymbol && stockBySymbol.id !== selectedStockId.value) {
+         selectedStockId.value = stockBySymbol.id
+         fetchAnalysis()
+     } else if (stockById && stockById.id !== selectedStockId.value) {
+         selectedStockId.value = stockById.id
+         fetchAnalysis()
+     }
   }
+})
+
+// SEO & Meta
+useSeoMeta({
+  title: () => analysis.value ? `تحليل سهم ${analysis.value.stockName}` : 'تحليل الأسهم',
+  ogTitle: () => analysis.value ? `تحليل سهم ${analysis.value.stockName}` : 'تحليل الأسهم',
+  description: () => analysis.value ? `التحليل الفني والمالي لسهم ${analysis.value.stockName} (${analysis.value.stockSymbol || ''})` : 'صفحة تحليل الأسهم',
+  ogDescription: () => analysis.value ? `التحليل الفني والمالي لسهم ${analysis.value.stockName} (${analysis.value.stockSymbol || ''})` : 'صفحة تحليل الأسهم',
+  ogImage: () => analysis.value?.stockLogo || '/images/default-stock.png',
+  twitterCard: 'summary_large_image',
+  twitterImage: () => analysis.value?.stockLogo || '/images/default-stock.png',
 })
 </script>
