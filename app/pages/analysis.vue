@@ -155,7 +155,7 @@ const resistanceLevels = computed(() => {
 
 // Lifecycle
 onMounted(async () => {
-  await getStocks()
+  await getStocks({ page: 1, limit: 1000, search: '' })
   
   // Check URL query for shared stock
   const stockParam = route.query.stock as string
