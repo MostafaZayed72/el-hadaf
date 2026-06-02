@@ -12,6 +12,7 @@ const links = [
   { name: 'التقارير', path: '/reports' },
   { name: 'تعليم', path: '/education' },
   { name: 'استشارات', path: '/consulting' },
+  { name: 'الاشتراك الذهبي', path: '/subscription' },
 ]
 
 onMounted(() => {
@@ -56,6 +57,12 @@ onMounted(() => {
         <!-- Actions -->
         <div class="flex items-center gap-4">
             <ThemeToggle />
+            <NuxtLink 
+              to="/subscription" 
+              class="px-4 py-2 rounded-lg font-bold text-xs bg-primary/10 text-primary border border-primary/30 hover:bg-primary hover:text-white transition-all duration-300 flex items-center gap-1 shadow-sm"
+            >
+              <span>دعم القناة 💛</span>
+            </NuxtLink>
             <button class="btn btn-primary">تسجيل الدخول</button>
             <button class="lg:hidden text-text-primary">
                 <!-- Mobile Menu Icon (Placeholder) -->
